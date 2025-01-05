@@ -1,35 +1,29 @@
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Random;
 
 public class Pedido {
     public int numItems, numPedido;
-    public int[] listaItems;
-    public LinkedList<Integer> listaLinked = new LinkedList<>();
+    public LinkedList<Integer> listaItems = new LinkedList<>();
     
     public Pedido(int numItems, int numPedido) {
         this.numItems = numItems;
         this.numPedido = numPedido;
     }
 
-    public int[] generarListaItems()   {
+    public LinkedList<Integer> generarListaItems()   {
         Random rand = new Random();
-        int randMax = 199; 
-        int[] lista = new int[this.numItems];
-
-        for (int i = 0; i < this.numItems; i++) {
-            int item = rand.nextInt(randMax);
-            lista[i] = item;
+        int randMax = 200;
+        int item;
+        
+        // Evita repetición de items en pedido
+        while (this.listaItems.size() < this.numItems) { 
+            item = rand.nextInt(randMax);
+            if (!this.listaItems.contains(item)) {
+                this.listaItems.add(item);
+            }
         }
 
-        Arrays.sort(lista);
-        this.listaItems = lista;
-
-        for (int i : lista) {
-            listaLinked.add(i);
-        }
-
-        return lista;
+        return this.listaItems;
     }
 
     public int getNumItems() {
@@ -40,12 +34,8 @@ public class Pedido {
         return this.numPedido;
     }
 
-    public int[] getListaItems() {
+    public LinkedList<Integer> getListaItems() {
         return this.listaItems;
-    }
-
-    public LinkedList<Integer> getListaLinked() {
-        return this.listaLinked;
     }
 
     public void setNumItems(int numItems) {
@@ -56,11 +46,7 @@ public class Pedido {
         this.numPedido = numPedido;
     }
 
-    public void setListaItems(int[] listaItems) {
+    public void setListaItems(LinkedList<Integer> listaItems) {
         this.listaItems = listaItems;
-    }
-
-    public void setListaLinked(LinkedList<Integer> listaLinked) {
-        this.listaLinked = listaLinked;
     }
 }

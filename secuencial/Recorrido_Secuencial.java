@@ -102,7 +102,7 @@ public class Recorrido_Secuencial {
         int ultItem;
         boolean arribaPasillo = false;
         
-        LinkedList<Integer> listaItems = p.getListaLinked();
+        LinkedList<Integer> listaItems = p.getListaItems();
 
         // Se recorre el camino inicial (la entrada al almacen)
         // TODO: Agregar variable para caminos iniciales
@@ -214,7 +214,7 @@ public class Recorrido_Secuencial {
         // Prueba sShape
         ///////////////////////////////////////////////////////////////////
         
-        String listaString = listaPedidos[0].getListaLinked().toString();
+        String listaString = listaPedidos[0].getListaItems().toString();
         
         sShape(listaPedidos[0], matriz);
 
