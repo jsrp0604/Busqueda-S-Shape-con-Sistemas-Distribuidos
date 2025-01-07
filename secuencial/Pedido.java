@@ -1,10 +1,12 @@
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Random;
 
 public class Pedido {
     public int numItems, numPedido;
     public LinkedList<Integer> listaItems = new LinkedList<>();
-    
+    public boolean enLote;
+
     public Pedido(int numItems, int numPedido) {
         this.numItems = numItems;
         this.numPedido = numPedido;
@@ -23,6 +25,8 @@ public class Pedido {
             }
         }
 
+        Collections.sort(this.listaItems);
+
         return this.listaItems;
     }
 
@@ -37,6 +41,10 @@ public class Pedido {
     public LinkedList<Integer> getListaItems() {
         return this.listaItems;
     }
+    
+    public boolean isEnLote()   {
+        return this.enLote;
+    }
 
     public void setNumItems(int numItems) {
         this.numItems = numItems;
@@ -48,5 +56,15 @@ public class Pedido {
 
     public void setListaItems(LinkedList<Integer> listaItems) {
         this.listaItems = listaItems;
+    }
+
+    public void setEnLote(boolean enLote) {
+        this.enLote = enLote;
+    }
+
+    @Override
+    public String toString() {
+        String s = "Pedido #" + numPedido + "\tNúmero de items: " + numItems;
+        return s;
     }
 }

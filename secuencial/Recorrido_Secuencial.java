@@ -2,8 +2,10 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -48,9 +50,9 @@ public class Recorrido_Secuencial {
         }
     }
 
-    public static Pedido[] generarPedidos(int numPedidos) {
+    public static List<Pedido> generarPedidos(int numPedidos) {
         Random rand = new Random();
-        Pedido[] listaPedidos = new Pedido[numPedidos];
+        List<Pedido> listaPedidos = new ArrayList();
         
         // Rango de items permitidos en el carrito
         int minItems = 5, maxItems = 30;
@@ -58,14 +60,60 @@ public class Recorrido_Secuencial {
         for (int i = 0; i < numPedidos; i++) {
             int numItems = rand.nextInt(maxItems - minItems + 1) + minItems;
             Pedido pedido = new Pedido(numItems, i + 1); // i + 1 representa el número del pedido
-            listaPedidos[i] = pedido;
+            listaPedidos.add(pedido);
             pedido.generarListaItems();
         }   
         
         return listaPedidos;
     }
 
-    public static void crearArchivos(Pedido[] listaPedidos) {
+    public static List<Lote> generarLotes(List<Pedido> listaPedidos, int numMaxItems)    {
+    
+        List<Lote> lotesDisponibles = new ArrayList();
+        List<Lote> lotesFinales = new ArrayList();       
+        
+        for (Pedido pedido : listaPedidos) {
+
+            // Revisa si hay un lote con espacio para el pedido
+            // De ser asi se agrega el pedido al lote y se disminuye el espacio disponible
+            for (Lote lote : lotesDisponibles) {
+                if (pedido.getNumItems() <= lote.getEspacioDisponible()) {
+                    lote.getListaPedidos().add(pedido);
+                    pedido.setEnLote(true);
+                    
+                    lote.setEspacioDisponible(lote.getEspacioDisponible() - pedido.getNumItems());
+                    
+                    if (lote.getEspacioDisponible() < 5)  { // 5 es el numero minimo de items en un pedido
+                        lotesDisponibles.remove(lote);
+                        lotesFinales.add(lote);
+                    }
+
+                    break;
+                }
+            }
+
+            if (!pedido.isEnLote()) {
+                // Crea un lote con el num max items dado previamente
+                // Se agrega el pedido y reduce el espacio disponible del lote
+                Lote lote = new Lote(numMaxItems);
+                lote.getListaPedidos().add(pedido);
+                pedido.setEnLote(true);
+
+                lote.setEspacioDisponible(lote.getEspacioDisponible() - pedido.getNumItems());
+                lotesDisponibles.add(lote);
+            }
+        }
+
+        // Se agregan los lotes con espacio disponible a los lotes finales
+        for (Lote loteDisponible : lotesDisponibles) {
+            lotesFinales.add(loteDisponible);
+        }
+
+        return lotesFinales;
+
+    }
+
+    public static void crearArchivos(List<Pedido> listaPedidos) {
         for (Pedido pedido : listaPedidos) {
             try {
                 String nombreArchivo = String.format("Pedido #%d.txt", pedido.getNumPedido());
@@ -205,26 +253,52 @@ public class Recorrido_Secuencial {
     public static void main(String[] args) throws InterruptedException {
         // Definición tamaño matriz del almacén
         int filas = 15, columnas = 40; // Cambiar filas a 14 cuando termine prueba
+        int numPedidos = 1000;
+        int espacioLote = 45;
+
         Bloque[][] matriz = crearMatriz(filas, columnas);
 
-        Pedido[] listaPedidos = generarPedidos(5);
+        List<Pedido> listaPedidos = generarPedidos(numPedidos);
 
-        crearArchivos(listaPedidos);
+        // Prueba creacion de Lotes
+
+        List<Lote> listaLotes = generarLotes(listaPedidos, espacioLote);
+        
+        System.out.println("Lotes:\n\n");
+        int i = 1;
+        for (Lote lote : listaLotes) {
+            System.out.println("Lote #" + i);
+            
+            for (Pedido pedido : lote.getListaPedidos()) {
+                System.out.println(pedido);
+            }
+            
+            System.out.println("Espacio Disponible: " + lote.getEspacioDisponible());
+            System.out.println("\n");
+            
+            i++;
+        }
+
+        // crearArchivos(listaPedidos);
+
+        ///////////////////////////////////////////////////////////////////
         
         // Prueba sShape
         ///////////////////////////////////////////////////////////////////
         
-        String listaString = listaPedidos[0].getListaItems().toString();
+        // String listaString = listaPedidos[0].getListaItems().toString();
         
-        sShape(listaPedidos[0], matriz);
+        // sShape(listaPedidos[0], matriz);
 
-        System.out.println("\n");
+        // System.out.println("\n");
 
-        System.out.println(listaString + "\n");
+        // System.out.println(listaString + "\n");
         
-        imprimirMatriz(matriz);
+        // imprimirMatriz(matriz);
 
         ///////////////////////////////////////////////////////////////////
+        
+        
 
     }
 }
