@@ -1,4 +1,5 @@
 # Java classes
+secuencial/Lote.class
 secuencial/Bloque.class
 secuencial/Pedido.class
 secuencial/Recorrido_Secuencial.class
@@ -12,3 +13,6 @@ secuencial/Pedido #5.txt
 
 # Notas
 notasAlgoritmoGenerarLotes.txt
+flujo.txt
+out.txt
+TO-DO.txt

@@ -4,7 +4,7 @@ import java.util.List;
 
 public class Lote   {
     public int espacioDisponible;
-    public List<Pedido> listaPedidos = new ArrayList();
+    public List<Pedido> listaPedidos = new ArrayList<>();
 
     public Lote(int espacioDisponible) {
         this.espacioDisponible = espacioDisponible;

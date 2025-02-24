@@ -52,7 +52,7 @@ public class Recorrido_Secuencial {
 
     public static List<Pedido> generarPedidos(int numPedidos) {
         Random rand = new Random();
-        List<Pedido> listaPedidos = new ArrayList();
+        List<Pedido> listaPedidos = new ArrayList<>();
         
         // Rango de items permitidos en el carrito
         int minItems = 5, maxItems = 30;
@@ -69,8 +69,8 @@ public class Recorrido_Secuencial {
 
     public static List<Lote> generarLotes(List<Pedido> listaPedidos, int numMaxItems)    {
     
-        List<Lote> lotesDisponibles = new ArrayList();
-        List<Lote> lotesFinales = new ArrayList();       
+        List<Lote> lotesDisponibles = new ArrayList<>();
+        List<Lote> lotesFinales = new ArrayList<>();       
         
         for (Pedido pedido : listaPedidos) {
 
@@ -113,6 +113,23 @@ public class Recorrido_Secuencial {
 
     }
 
+    public static void imprimirLotes(List<Lote> listaLotes) {
+        System.out.println("Lotes:\n\n");
+        int i = 1;
+        for (Lote lote : listaLotes) {
+            System.out.println("Lote #" + i);
+            
+            for (Pedido pedido : lote.getListaPedidos()) {
+                System.out.println(pedido);
+            }
+            
+            System.out.println("Espacio Disponible: " + lote.getEspacioDisponible());
+            System.out.println("\n");
+            
+            i++;
+        }
+    }
+
     public static void crearArchivos(List<Pedido> listaPedidos) {
         for (Pedido pedido : listaPedidos) {
             try {
@@ -146,16 +163,18 @@ public class Recorrido_Secuencial {
     public static void sShape(Pedido p, Bloque[][] matriz) {
         // Mejorar variables para escalabilidad
         int colIzq = 1, colDer = 2;
-        int limite = 20; // Num max de item que se puede encontrar en un pasillo 
+        int limite = 19; // Num max de item que se puede encontrar en un pasillo 
         int ultItem;
         boolean arribaPasillo = false;
+        int distanciaRecorrida = 0;
         
         LinkedList<Integer> listaItems = p.getListaItems();
 
         // Se recorre el camino inicial (la entrada al almacen)
-        // TODO: Agregar variable para caminos iniciales
-        matriz[12][1].setNumItem(777);
+        // TODO: Agregar variable para caminos iniciales (por definir si se agrega a distancia)
+        // matriz[12][1].setNumItem(777); Se comenta para no afectar a distancia
         matriz[13][1].setNumItem(777);
+        distanciaRecorrida++;
         
         while (!listaItems.isEmpty())  {
             ultItem = listaItems.pop();
@@ -168,9 +187,16 @@ public class Recorrido_Secuencial {
                     // Está en pasillo
                     // No hay más items en pasillo 
                     
+                    if (colIzq == 1)    {
+                        matriz[12][1].setNumItem(777); // Si es la primera columna se marca el paso inicial
+                        distanciaRecorrida++;
+                    } 
+                    
+
                     // Camino hacia arriba/abajo 
-                    for (int i = 1; i <= 12; i++) {
-                        matriz[i][colIzq].setNumItem(777);
+                    for (int i = 2; i <= 11; i++) {                 // Se empieza en fila 2 y se termina en la 11 para
+                        matriz[i][colIzq].setNumItem(777);          // no afectar la distancia recorrida
+                        distanciaRecorrida++;
                     }
 
                     // Se movió arriba/abajo
@@ -185,8 +211,9 @@ public class Recorrido_Secuencial {
                     // !arribaPasillo => Línea gira en u y regresa 
 
                     if (arribaPasillo)  {
-                        for (int i = 1; i <= 13; i++) {
-                            matriz[i][colIzq].setNumItem(777);
+                        for (int i = 2; i <= 13; i++) {              // Se empieza en fila 2 pero se termina en la 13 
+                            matriz[i][colIzq].setNumItem(777);       // dado que es el ultimo pasillo
+                            distanciaRecorrida++;
                         }
                         listaItems.clear();
                     } 
@@ -195,15 +222,19 @@ public class Recorrido_Secuencial {
                         boolean flag = true;
                         int i = 2;  // Se comienza en la fila más arriba del pasillo
                         listaItems.addFirst(ultItem); // Se añade de vuelta el ult item
+
+                        // Se elimina un paso del camino avanzado horizontalmente (para no afectar distancia recorrida)
+                        distanciaRecorrida--;
                         
                         // Se buscará el item más alejado (más arriba en pasillo)
                         // Se dibujará desde la posición del item más alejado
                         
                         while (flag) {
                             if (listaItems.contains(matriz[i][colIzq - 1].getNumItem())) {
-                                for (int x = i; x <= 13; x++) {
-                                    matriz[x][colIzq].setNumItem(777);
-                                    matriz[x][colDer].setNumItem(777);
+                                for (int x = i; x <= 13; x++) {                     // A diferencia de los otros pasillos, en el ultimo,
+                                    matriz[x][colIzq].setNumItem(777);              // se recorrera hasta la fila 13 (la ultima),
+                                    matriz[x][colDer].setNumItem(777);              // ya que se recorren 2 columnas
+                                    distanciaRecorrida = distanciaRecorrida + 2;
                                 }
                                 listaItems.clear();
                                 flag = false;
@@ -213,6 +244,7 @@ public class Recorrido_Secuencial {
                                 for (int x = i; x <= 13; x++) {
                                     matriz[x][colIzq].setNumItem(777);
                                     matriz[x][colDer].setNumItem(777);
+                                    distanciaRecorrida = distanciaRecorrida + 2;
                                 }
                                 listaItems.clear();
                                 flag = false;
@@ -222,21 +254,33 @@ public class Recorrido_Secuencial {
                         }
                     }
                     
-                    for (int j = 2; j <= colIzq; j++) { // Se regresa al punto inicial 
-                        matriz[13][j].setNumItem(777);
+                    for (int j = 2; j <= colIzq - 1; j++) {       
+                        if (matriz[13][j].getNumItem() != 777)  {       // Si está recorrido, no se marca ni se aumenta distancia
+                            matriz[13][j].setNumItem(777);          
+                            distanciaRecorrida++;
+                        }                        
                     }
+
                 }
             } 
             
             else if (ultItem > limite)  {
                 // Mover derecha (arriba/abajo)
+                
                 if (arribaPasillo)  {
-                    for (int i = colIzq; i <= colIzq + 4; i++) {
-                        matriz[1][i].setNumItem(777);
+                    for (int i = colIzq; i <= colIzq + 4; i++) { 
+                        if (matriz[1][i].getNumItem() != 777)    {              // Si está recorrido, no se marca ni se aumenta distancia
+                            matriz[1][i].setNumItem(777);                
+                            distanciaRecorrida++;   
+                        }
                     }
+
                 } else  {
-                    for (int i = colIzq; i <= colIzq + 4; i++) {
-                        matriz[12][i].setNumItem(777);
+                    for (int i = colIzq; i <= colIzq + 4; i++) { 
+                        if (matriz[12][i].getNumItem() != 777)    {             // Si está recorrido, no se marca ni se aumenta distancia
+                            matriz[12][i].setNumItem(777);                
+                            distanciaRecorrida++;   
+                        }
                     }
                 }
                 
@@ -248,13 +292,15 @@ public class Recorrido_Secuencial {
                 limite = limite + 20;
             } 
         }
+        
+        System.out.println("Distancia Recorrida: " + distanciaRecorrida);
     }
 
     public static void main(String[] args) throws InterruptedException {
         // Definición tamaño matriz del almacén
         int filas = 15, columnas = 40; // Cambiar filas a 14 cuando termine prueba
         int numPedidos = 1000;
-        int espacioLote = 45;
+        int espacioLote = 70;
 
         Bloque[][] matriz = crearMatriz(filas, columnas);
 
@@ -262,40 +308,31 @@ public class Recorrido_Secuencial {
 
         // Prueba creacion de Lotes
 
-        List<Lote> listaLotes = generarLotes(listaPedidos, espacioLote);
-        
-        System.out.println("Lotes:\n\n");
-        int i = 1;
-        for (Lote lote : listaLotes) {
-            System.out.println("Lote #" + i);
-            
-            for (Pedido pedido : lote.getListaPedidos()) {
-                System.out.println(pedido);
-            }
-            
-            System.out.println("Espacio Disponible: " + lote.getEspacioDisponible());
-            System.out.println("\n");
-            
-            i++;
-        }
+        // List<Lote> listaLotes = generarLotes(listaPedidos, espacioLote);
+        // imprimirLotes(listaLotes);
+
+        // Prueba sShape con Lotes
+
+
+
 
         // crearArchivos(listaPedidos);
 
         ///////////////////////////////////////////////////////////////////
         
         // Prueba sShape
-        ///////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////
         
-        // String listaString = listaPedidos[0].getListaItems().toString();
+        String listaString = listaPedidos.get(0).getListaItems().toString();
         
-        // sShape(listaPedidos[0], matriz);
+        sShape(listaPedidos.get(0), matriz);
 
-        // System.out.println("\n");
+        System.out.println("\n");
 
-        // System.out.println(listaString + "\n");
+        System.out.println(listaString + "\n");
         
-        // imprimirMatriz(matriz);
-
+        imprimirMatriz(matriz);
+        
         ///////////////////////////////////////////////////////////////////
         
         
