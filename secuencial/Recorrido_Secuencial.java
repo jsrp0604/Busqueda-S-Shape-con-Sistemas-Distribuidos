@@ -160,7 +160,7 @@ public class Recorrido_Secuencial {
         }
     }
 
-    public static void sShape(Pedido p, Bloque[][] matriz) {
+    public static Object[] sShape(Pedido p, Bloque[][] matriz) {
         // Mejorar variables para escalabilidad
         int colIzq = 1, colDer = 2;
         int limite = 19; // Num max de item que se puede encontrar en un pasillo 
@@ -175,6 +175,9 @@ public class Recorrido_Secuencial {
         // matriz[12][1].setNumItem(777); Se comenta para no afectar a distancia
         matriz[13][1].setNumItem(777);
         distanciaRecorrida++;
+
+        // Inicia tiempo 
+        long tiempoInicio = System.nanoTime();
         
         while (!listaItems.isEmpty())  {
             ultItem = listaItems.pop();
@@ -292,8 +295,15 @@ public class Recorrido_Secuencial {
                 limite = limite + 20;
             } 
         }
-        
-        System.out.println("Distancia Recorrida: " + distanciaRecorrida);
+
+        // Tiempo final y cálculo tiempo total de ejecución
+        long tiempoFin = System.nanoTime();
+        long tiempoTotal = tiempoFin - tiempoInicio;
+
+        // Se retorna un Array de Distancia y Tiempo total 
+        Object[] resultados = new Object[]{distanciaRecorrida, tiempoTotal};
+
+        return resultados;
     }
 
     public static void main(String[] args) throws InterruptedException {
@@ -325,13 +335,14 @@ public class Recorrido_Secuencial {
         
         String listaString = listaPedidos.get(0).getListaItems().toString();
         
-        sShape(listaPedidos.get(0), matriz);
+        Object[] resultados = sShape(listaPedidos.get(0), matriz);
 
-        System.out.println("\n");
-
-        System.out.println(listaString + "\n");
-        
+        System.out.println("\n" + listaString + "\n");
         imprimirMatriz(matriz);
+
+        System.out.println("\nResultados Finales:\n");
+        System.out.println("Distancia Recorrida: " + resultados[0].toString());
+        System.out.println("Tiempo de Ejecución: " + resultados[1].toString());
         
         ///////////////////////////////////////////////////////////////////
         
