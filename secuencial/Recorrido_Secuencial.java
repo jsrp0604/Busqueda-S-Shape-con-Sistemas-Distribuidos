@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+// import com.opencsv.CSVWriter;
 
 /**
  * Recorrido_Secuencial
@@ -170,6 +171,8 @@ public class Recorrido_Secuencial {
         
         LinkedList<Integer> listaItems = p.getListaItems();
 
+
+        
         // Se recorre el camino inicial (la entrada al almacen)
         // TODO: Agregar variable para caminos iniciales (por definir si se agrega a distancia)
         // matriz[12][1].setNumItem(777); Se comenta para no afectar a distancia
@@ -318,35 +321,85 @@ public class Recorrido_Secuencial {
 
         // Prueba creacion de Lotes
 
-        // List<Lote> listaLotes = generarLotes(listaPedidos, espacioLote);
+        List<Lote> listaLotes = generarLotes(listaPedidos, espacioLote);
         // imprimirLotes(listaLotes);
 
-        // Prueba sShape con Lotes
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        // Recorrido Lotes
+
+        File csvLote = new File("lote.csv");
+
+        int counterLote = 1;
+        // List<Object[]> listaResultadosLote = new ArrayList<>();
 
 
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("lotes.csv"))) {
+            // String[] header = { "Número Lote", "Capacidad Carrito", "Distancia Recorrida", "Tiempo Total" };
+            
+            writer.append("Número_Lote,Capacidad_Carrito,Distancia_Recorrida,Tiempo_Total\n"); 
 
+            
+            for (Lote lote : listaLotes) {
+                LinkedList<Integer> listaItems = new LinkedList<>();
+                
+                int distanciaLote = 0;
+                long tiempoInicio = System.nanoTime();
+                
+                for (Pedido pedido : lote.getListaPedidos()) {
+                    
+                    
+                    
+                    Object[] resultadosPedido = sShape(pedido, matriz);
+                    // listaResultadosLote.add(resultadosPedido);
 
-        // crearArchivos(listaPedidos);
+                    int distanciaPedido = (Integer) resultadosPedido[0];
+                    distanciaLote = distanciaLote + distanciaPedido;
+                }
+    
+                long tiempoTotal = System.nanoTime() - tiempoInicio;
+
+                imprimirLotes(listaLotes);
+                
+                // System.out.println("Distancia Recorrido Lote " + counterLote + ": " + distanciaLote);
+                // System.out.println("Tiempo Total Lote " + counterLote + ": " + tiempoTotal);
+                
+
+                String strNumLote = String.valueOf(counterLote);
+                String strEspacio = String.valueOf(lote.getEspacioDisponible());
+                String strDistancia = String.valueOf(distanciaLote);
+                String strTiempo = String.valueOf(tiempoTotal);
+
+                writer.append(strNumLote + "," + strEspacio + "," + strDistancia + "," + strTiempo + "\n");
+
+                // String[] resultadosLote = {strNumLote, strEspacio, strDistancia, strTiempo};
+                // writer.writeNext(header);
+                
+                counterLote++;
+            }
+        }
+
+        catch (IOException e) { 
+            // TODO Auto-generated catch block 
+            e.printStackTrace(); 
+        }
 
         ///////////////////////////////////////////////////////////////////
         
         // Prueba sShape
-        /////////////////////////////////////////////////////////////////
-        
-        String listaString = listaPedidos.get(0).getListaItems().toString();
-        
-        Object[] resultados = sShape(listaPedidos.get(0), matriz);
 
-        System.out.println("\n" + listaString + "\n");
-        imprimirMatriz(matriz);
+        
+        // String listaString = listaPedidos.get(0).getListaItems().toString();
+        
+        // Object[] resultados = sShape(listaPedidos.get(0), matriz);
 
-        System.out.println("\nResultados Finales:\n");
-        System.out.println("Distancia Recorrida: " + resultados[0].toString());
-        System.out.println("Tiempo de Ejecución: " + resultados[1].toString());
+        // System.out.println("\n" + listaString + "\n");
+        // imprimirMatriz(matriz);
+
+        // System.out.println("\nResultados Finales:\n");
+        // System.out.println("Distancia Recorrida: " + resultados[0].toString());
+        // System.out.println("Tiempo de Ejecución: " + resultados[1].toString());
         
         ///////////////////////////////////////////////////////////////////
-        
-        
-
     }
 }

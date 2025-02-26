@@ -1,0 +1,5 @@
+{
+    "java.project.referencedLibraries": [
+        "libs/opencsv-5.10.jar"
+    ]
+}
