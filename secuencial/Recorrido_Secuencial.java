@@ -322,14 +322,11 @@ public class Recorrido_Secuencial {
         int numPedidos = 1000;
         int espacioLote = 70;
 
-        Bloque[][] matriz = crearMatriz(filas, columnas);
-
         List<Pedido> listaPedidos = generarPedidos(numPedidos);
 
         // Prueba creacion de Lotes
 
         List<Lote> listaLotes = generarLotes(listaPedidos, espacioLote);
-        // imprimirLotes(listaLotes);
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -340,29 +337,30 @@ public class Recorrido_Secuencial {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("lotes.csv"))) {
             // String[] header = { "Número Lote", "Capacidad Carrito", "Distancia Recorrida", "Tiempo Total" };
             
-            writer.append("Numero_Lote,Capacidad_Carrito,Distancia_Recorrida,Tiempo_Total\n"); 
+            writer.append("Numero_Lote,Capacidad_Restante,Distancia_Recorrida,Tiempo_Total\n"); 
 
             
             for (Lote lote : listaLotes) {
-                LinkedList<Integer> listaItems = new LinkedList<>();
-                
-                long tiempoInicio = System.nanoTime();                
-                Object[] resultadosLote = sShape(listaItems, matriz);
-                long tiempoTotal = System.nanoTime() - tiempoInicio;
+                // Se crea una nueva matriz por cada lote
+                Bloque[][] matriz = crearMatriz(filas, columnas);
+                String listaString = lote.getListaItems().toString();
 
-                int distanciaLote = (Integer) resultadosLote[0];
-    
-                // imprimirLotes(listaLotes);
+                Object[] resultadosLote = sShape(lote.getListaItems(), matriz);
 
                 String strNumLote = String.valueOf(counterLote);
                 String strEspacio = String.valueOf(lote.getEspacioDisponible());
-                String strDistancia = String.valueOf(distanciaLote);
-                String strTiempo = String.valueOf(tiempoTotal);
+                String strDistancia = resultadosLote[0].toString();
+                String strTiempo = resultadosLote[1].toString();
 
                 writer.append(strNumLote + "," + strEspacio + "," + strDistancia + "," + strTiempo + "\n");
 
-                // String[] resultadosLote = {strNumLote, strEspacio, strDistancia, strTiempo};
-                // writer.writeNext(header);
+                System.out.println("\n" + listaString + "\n");
+                imprimirMatriz(matriz);
+
+                System.out.println("\nResultados Finales:\n");
+                System.out.println("Array Conjunto: " + Arrays.toString(resultadosLote));
+                System.out.println("Distancia Recorrida: " + resultadosLote[0].toString());
+                System.out.println("Tiempo de Ejecución: " + resultadosLote[1].toString());
                 
                 counterLote++;
             }
@@ -373,21 +371,20 @@ public class Recorrido_Secuencial {
             e.printStackTrace(); 
         }
 
-        imprimirLotes(listaLotes);
-
         ///////////////////////////////////////////////////////////////////
         
         // Prueba sShape
 
         
-        // String listaString = listaPedidos.get(0).getListaItems().toString();
+        // String listaString = listaLotes.get(1).getListaItems().toString();
         
-        // Object[] resultados = sShape(listaPedidos.get(0), matriz);
+        // Object[] resultados = sShape(listaLotes.get(1).getListaItems(), matriz);
 
         // System.out.println("\n" + listaString + "\n");
         // imprimirMatriz(matriz);
 
         // System.out.println("\nResultados Finales:\n");
+        // System.out.println("Array Conjunto: " + Arrays.toString(resultados));
         // System.out.println("Distancia Recorrida: " + resultados[0].toString());
         // System.out.println("Tiempo de Ejecución: " + resultados[1].toString());
         

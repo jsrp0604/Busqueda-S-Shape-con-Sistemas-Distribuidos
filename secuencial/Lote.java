@@ -27,15 +27,15 @@ public class Lote   {
     }
 
     public int getEspacioDisponible() {
-        return espacioDisponible;
+        return this.espacioDisponible;
     }
 
     public List<Pedido> getListaPedidos() {
-        return listaPedidos;
+        return this.listaPedidos;
     }
 
     public LinkedList<Integer> getListaItems() {
-        return listaItems;
+        return this.listaItems;
     }
 
     public void setEspacioDisponible(int espacioDisponible) {
