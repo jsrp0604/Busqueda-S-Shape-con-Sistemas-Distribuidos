@@ -87,6 +87,9 @@ public class Recorrido_Secuencial {
                     if (lote.getEspacioDisponible() < 5)  { // 5 es el numero minimo de items en un pedido
                         lotesDisponibles.remove(lote);
                         lotesFinales.add(lote);
+                        
+                        // Se unifica la lista de items en el lote 
+                        lote.unificarListaItems(); 
                     }
 
                     break;
@@ -108,6 +111,9 @@ public class Recorrido_Secuencial {
         // Se agregan los lotes con espacio disponible a los lotes finales
         for (Lote loteDisponible : lotesDisponibles) {
             lotesFinales.add(loteDisponible);
+            
+            // Se unifica la lista de items en el lote 
+            loteDisponible.unificarListaItems();
         }
 
         return lotesFinales;
@@ -125,6 +131,7 @@ public class Recorrido_Secuencial {
             }
             
             System.out.println("Espacio Disponible: " + lote.getEspacioDisponible());
+            System.out.println("Lista Items: " + lote.getListaItems().toString());
             System.out.println("\n");
             
             i++;
@@ -161,7 +168,7 @@ public class Recorrido_Secuencial {
         }
     }
 
-    public static Object[] sShape(Pedido p, Bloque[][] matriz) {
+    public static Object[] sShape(LinkedList<Integer> listaItems, Bloque[][] matriz) {
         // Mejorar variables para escalabilidad
         int colIzq = 1, colDer = 2;
         int limite = 19; // Num max de item que se puede encontrar en un pasillo 
@@ -169,10 +176,10 @@ public class Recorrido_Secuencial {
         boolean arribaPasillo = false;
         int distanciaRecorrida = 0;
         
-        LinkedList<Integer> listaItems = p.getListaItems();
-
-
+        // Se elimina esta linea; se recibe directamente la listaitems como argumento
+        // LinkedList<Integer> listaItems = p.getListaItems();
         
+
         // Se recorre el camino inicial (la entrada al almacen)
         // TODO: Agregar variable para caminos iniciales (por definir si se agrega a distancia)
         // matriz[12][1].setNumItem(777); Se comenta para no afectar a distancia
@@ -328,42 +335,24 @@ public class Recorrido_Secuencial {
 
         // Recorrido Lotes
 
-        File csvLote = new File("lote.csv");
-
         int counterLote = 1;
-        // List<Object[]> listaResultadosLote = new ArrayList<>();
-
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("lotes.csv"))) {
             // String[] header = { "Número Lote", "Capacidad Carrito", "Distancia Recorrida", "Tiempo Total" };
             
-            writer.append("Número_Lote,Capacidad_Carrito,Distancia_Recorrida,Tiempo_Total\n"); 
+            writer.append("Numero_Lote,Capacidad_Carrito,Distancia_Recorrida,Tiempo_Total\n"); 
 
             
             for (Lote lote : listaLotes) {
                 LinkedList<Integer> listaItems = new LinkedList<>();
                 
-                int distanciaLote = 0;
-                long tiempoInicio = System.nanoTime();
-                
-                for (Pedido pedido : lote.getListaPedidos()) {
-                    
-                    
-                    
-                    Object[] resultadosPedido = sShape(pedido, matriz);
-                    // listaResultadosLote.add(resultadosPedido);
-
-                    int distanciaPedido = (Integer) resultadosPedido[0];
-                    distanciaLote = distanciaLote + distanciaPedido;
-                }
-    
+                long tiempoInicio = System.nanoTime();                
+                Object[] resultadosLote = sShape(listaItems, matriz);
                 long tiempoTotal = System.nanoTime() - tiempoInicio;
 
-                imprimirLotes(listaLotes);
-                
-                // System.out.println("Distancia Recorrido Lote " + counterLote + ": " + distanciaLote);
-                // System.out.println("Tiempo Total Lote " + counterLote + ": " + tiempoTotal);
-                
+                int distanciaLote = (Integer) resultadosLote[0];
+    
+                // imprimirLotes(listaLotes);
 
                 String strNumLote = String.valueOf(counterLote);
                 String strEspacio = String.valueOf(lote.getEspacioDisponible());
@@ -383,6 +372,8 @@ public class Recorrido_Secuencial {
             // TODO Auto-generated catch block 
             e.printStackTrace(); 
         }
+
+        imprimirLotes(listaLotes);
 
         ///////////////////////////////////////////////////////////////////
         
